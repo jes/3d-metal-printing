@@ -2,8 +2,11 @@
 function process_model(model, material) {
     let vol = model_volume(model);
     return {
-        model_volume: vol,
-        model_mass: mass(vol, material),
+        volume: vol,
+        mass: mass(vol, material),
+        model: model,
+        num_triangles: model.length,
+        bounding_box: bounding_box(model),
     };
 }
 
@@ -37,4 +40,46 @@ function density(material) {
 // return the mass for the given volume of the given material
 function mass(volume, material) {
     return volume * density(material);
+}
+
+function bounding_box(model) {
+    let minx = 100000, miny = 100000, minz = 100000;
+    let maxx = 0, maxy = 0, maxz = 0;
+
+    for (let i = 0; i < model.length; i++) {
+        let t = model[i];
+
+        for (let j = 0; j < 3; j++) {
+            if (t[j].x < minx)
+                minx = t[j].x;
+            if (t[j].x > maxx)
+                maxx = t[j].x;
+            if (t[j].y < miny)
+                miny = t[j].y;
+            if (t[j].y > maxy)
+                maxy = t[j].y;
+            if (t[j].z < minz)
+                minz = t[j].z;
+            if (t[j].z > maxz)
+                maxz = t[j].z;
+        }
+    }
+
+    return {
+        min: {
+            x: minx,
+            y: miny,
+            z: minz,
+        },
+        max: {
+            x: maxx,
+            y: maxy,
+            z: maxz,
+        },
+        size: {
+            x: maxx-minx,
+            y: maxy-miny,
+            z: maxz-minz,
+        },
+    };
 }
