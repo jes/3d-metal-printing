@@ -83,3 +83,54 @@ function bounding_box(model) {
         },
     };
 }
+
+// return an image that describes the bottom layer of the given model, viewed from above
+// basically draws a pixel where there is a triangle in the model with all vertices with z coordinate
+// no more than "layerheight" above the bottom of the model
+// also draws all the other triangles from the model, in a lighter colour
+// you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
+function draw_bottom_layer(model, layerheight, px_per_mm) {
+    let bbox = bounding_box(model);
+    let zlimit = bbox.min.z + layerheight;
+
+    let img = document.createElement('canvas');
+    img.width = bbox.size.x * px_per_mm;
+    img.height = bbox.size.y * px_per_mm;
+    let ctx = img.getContext('2d');
+
+    // fill the canvas with white
+    ctx.beginPath();
+    ctx.rect(0, 0, img.width, img.height);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+
+    let draw_triangle = function(t) {
+        ctx.beginPath();
+        ctx.moveTo((t[0].x-bbox.min.x)*px_per_mm, (t[0].y-bbox.min.y)*px_per_mm);
+        ctx.lineTo((t[1].x-bbox.min.x)*px_per_mm, (t[1].y-bbox.min.y)*px_per_mm);
+        ctx.lineTo((t[2].x-bbox.min.x)*px_per_mm, (t[2].y-bbox.min.y)*px_per_mm);
+        ctx.closePath();
+        ctx.fill();
+    };
+
+    // draw all triangles from model, in a light colour
+    ctx.fillStyle = '#ddd';
+    for (let i = 0; i < model.length; i++) {
+        draw_triangle(model[i]);
+    }
+
+    // now draw the bottom layer only
+    ctx.fillStyle = '#000';
+    for (let i = 0; i < model.length; i++) {
+        let t = model[i];
+
+        // skip triangles that have any z-coordinate above the top of the layer
+        if (t[0].z > zlimit || t[1].z > zlimit || t[2].z > zlimit)
+            continue;
+
+        // draw triangle onto canvas
+        draw_triangle(t);
+    }
+
+    return img;
+}
