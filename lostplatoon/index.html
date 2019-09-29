@@ -6,9 +6,9 @@
 <body>
 <h1>lostplatoon</h1>
 <form id="form" action="#">
-    <input type="file" id="stlfile"><br>
-    <select id="material">
-        <option value="aluminium">Aluminium</option>
+    Model: <input type="file" id="stlfile"><br>
+    Casting material: <select id="material">
+        <option value="aluminium" selected>Aluminium</option>
         <option value="brass">Brass</option>
         <option value="bronze">Bronze</option>
         <option value="copper">Copper</option>
@@ -16,6 +16,9 @@
         <option value="pla">PLA</option>
         <option value="zinc">Zinc</option>
     </select><br>
+    Casting rod diameter: <input type="text" id="roddiameter" value="40"> mm<br>
+    Flask diameter: <input type="text" id="flaskdiameter" value="60"> mm<br>
+    Flask height: <input type="text" id="flaskheight" value="150"> mm<br>
     <button type="submit">Process</button>
 </form>
 
