@@ -89,14 +89,18 @@ function bounding_box(model) {
 // no more than "layerheight" above the bottom of the model
 // also draws all the other triangles from the model, in a lighter colour
 // you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
-function draw_bottom_layer(model, layerheight, px_per_mm) {
+function draw_bottom_layer(model, layerheight, w, h, px_per_mm, draw_bg_cb) {
     let bbox = bounding_box(model);
     let zlimit = bbox.min.z + layerheight;
 
     let img = document.createElement('canvas');
-    img.width = bbox.size.x * px_per_mm;
-    img.height = bbox.size.y * px_per_mm;
+    img.width = w;
+    img.height = h;
     let ctx = img.getContext('2d');
+
+    // centre the model in the canvas
+    let xoff = w/2 - (bbox.size.x/2)*px_per_mm;
+    let yoff = h/2 - (bbox.size.y/2)*px_per_mm;
 
     // fill the canvas with white
     ctx.beginPath();
@@ -104,11 +108,16 @@ function draw_bottom_layer(model, layerheight, px_per_mm) {
     ctx.fillStyle = '#fff';
     ctx.fill();
 
+    // let the user supply a background-drawing function
+    // (this is used to draw a diagram of the flask)
+    if (draw_bg_cb)
+        draw_bg_cb(ctx, px_per_mm);
+
     let draw_triangle = function(t) {
         ctx.beginPath();
-        ctx.moveTo((t[0].x-bbox.min.x)*px_per_mm, (t[0].y-bbox.min.y)*px_per_mm);
-        ctx.lineTo((t[1].x-bbox.min.x)*px_per_mm, (t[1].y-bbox.min.y)*px_per_mm);
-        ctx.lineTo((t[2].x-bbox.min.x)*px_per_mm, (t[2].y-bbox.min.y)*px_per_mm);
+        ctx.moveTo(xoff + (t[0].x-bbox.min.x)*px_per_mm, yoff + (t[0].y-bbox.min.y)*px_per_mm);
+        ctx.lineTo(xoff + (t[1].x-bbox.min.x)*px_per_mm, yoff + (t[1].y-bbox.min.y)*px_per_mm);
+        ctx.lineTo(xoff + (t[2].x-bbox.min.x)*px_per_mm, yoff + (t[2].y-bbox.min.y)*px_per_mm);
         ctx.closePath();
         ctx.fill();
     };
@@ -133,4 +142,22 @@ function draw_bottom_layer(model, layerheight, px_per_mm) {
     }
 
     return img;
+}
+
+function draw_flask_func(cx, cy, diameter, clearance) {
+    return function(ctx, px_per_mm) {
+        // red circle for danger zone
+        ctx.beginPath();
+        ctx.arc(cx, cy, px_per_mm*diameter/2, 0, 2*Math.PI);
+        ctx.fillStyle = '#f88';
+        ctx.strokeStyle = '#000';
+        ctx.fill();
+        ctx.stroke();
+
+        // white circle for background
+        ctx.beginPath();
+        ctx.arc(cx, cy, px_per_mm*(diameter/2-clearance), 0, 2*Math.PI);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+    };
 }

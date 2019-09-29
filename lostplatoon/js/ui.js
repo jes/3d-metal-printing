@@ -8,13 +8,15 @@ $('#form').submit(function(e) {
         let proc = process_model(model, $('#material').val());
         console.log(proc);
 
-        let maxdim = 400; // px
-        let px_per_mm_x = maxdim / proc.bounding_box.size.x;
-        let px_per_mm_y = maxdim / proc.bounding_box.size.y;
+        let flaskdiameter = parseFloat($('#flaskdiameter').val());
+        let flaskclearance = parseFloat($('#flaskclearance').val());
 
-        $('#output')[0].appendChild(draw_bottom_layer(model, 0.2, px_per_mm_x < px_per_mm_y ? px_per_mm_x : px_per_mm_y));
+        let imsize = 400; // px
+        let px_per_mm = imsize / flaskdiameter;
 
-        // TODO: generate a crude bitmap (maybe 1mm per pixel?) of the bottom layer, display it to the user, generate initial sprue points, and let them add/remove sprue points
+        $('#output')[0].appendChild(draw_bottom_layer(model, 0.2, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
+
+        // TODO: generate initial sprue points, and let them add/remove sprue points
 
         // TODO: generate sprue model with central platform to glue to metal bar, and then sprue points coming off
 
