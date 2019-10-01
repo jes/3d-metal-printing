@@ -49,7 +49,11 @@ function redraw() {
     $('#output').empty();
     $('#output')[0].appendChild(draw_bottom_layer(workingmodel, spruelegs, 0.1, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
 
-    $('#output')[0].appendChild(draw_side_view(workingmodel, spruelegs, spruelegheight, roddiameter, spruepuckheight, imsize, imsize, imsize/flaskheight, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
+    // make sure the rod contains 2x the volume of the model plus sprues
+    let rodvolume = 2 * (workingmodelproc.volume + sprue_volume(spruelegs, spruelegheight, spruepuckheight, roddiameter));
+    let rodheight = rodvolume / (Math.PI * (roddiameter/2)*(roddiameter/2));
+
+    $('#output')[0].appendChild(draw_side_view(workingmodel, spruelegs, spruelegheight, roddiameter, spruepuckheight, rodheight, imsize, imsize, imsize/flaskheight, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
 
     $($('#output')[0].children[0]).click(function(e) {
         let offset = $(this).offset();
@@ -71,4 +75,18 @@ function redraw() {
 
         redraw();
     });
+}
+
+function sprue_volume(spruelegs, spruelegheight, puckheight, puckdiameter) {
+    if (spruelegs.length == 0)
+        return 0;
+
+    let vol = Math.PI * (puckdiameter/2) * (puckdiameter/2) * puckheight;
+
+    for (let i = 0; i < spruelegs.length; i++) {
+        let l = spruelegs[i];
+        vol += Math.PI * (l.diameter/2) * (l.diameter/2) * spruelegheight;
+    }
+
+    return vol;
 }

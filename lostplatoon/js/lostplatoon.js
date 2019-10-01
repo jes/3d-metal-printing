@@ -174,7 +174,7 @@ function draw_flask_func(cx, cy, diameter, clearance) {
 // return an image that describes the side view of the given model, viewed from the y direction (facing the x/z plane)
 // basically draws a pixel where there is a triangle in the model
 // you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
-function draw_side_view(model, spruelegs, spruelegheight, roddiameter, spruepuckheight, w, h, px_per_mm, draw_bg_cb) {
+function draw_side_view(model, spruelegs, spruelegheight, roddiameter, spruepuckheight, rodheight, w, h, px_per_mm, draw_bg_cb) {
     let bbox = bounding_box(model);
 
     let img = document.createElement('canvas');
@@ -184,7 +184,7 @@ function draw_side_view(model, spruelegs, spruelegheight, roddiameter, spruepuck
 
     // centre the model in the canvas
     let xoff = w/2 - (bbox.size.x/2)*px_per_mm;
-    let yoff = h/2 - ((bbox.size.z + (spruelegs.length > 0 ? -(spruelegheight+spruepuckheight) : 0))/2)*px_per_mm;
+    let yoff = h/2 - ((bbox.size.z + (spruelegs.length > 0 ? -(spruelegheight+spruepuckheight+rodheight) : 0))/2)*px_per_mm;
 
     // fill the canvas with white
     ctx.beginPath();
@@ -226,6 +226,12 @@ function draw_side_view(model, spruelegs, spruelegheight, roddiameter, spruepuck
         ctx.rect(xoff + (-roddiameter/2-bbox.min.x)*px_per_mm, yoff + (-bbox.size.z/2-bbox.min.z-spruelegheight-spruepuckheight)*px_per_mm, roddiameter*px_per_mm, spruepuckheight*px_per_mm);
         ctx.fill();
     }
+
+    // draw metal rod
+    ctx.fillStyle = '#aa0';
+    ctx.beginPath();
+    ctx.rect(xoff + (-roddiameter/2-bbox.min.x)*px_per_mm, yoff + (-bbox.size.z/2-bbox.min.z-(spruelegs.length > 0 ? (spruelegheight+spruepuckheight):0)-rodheight)*px_per_mm, roddiameter*px_per_mm, rodheight*px_per_mm);
+    ctx.fill();
 
     return img;
 }
