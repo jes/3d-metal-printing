@@ -123,7 +123,7 @@ function draw_bottom_layer(model, layerheight, w, h, px_per_mm, draw_bg_cb) {
     };
 
     // draw all triangles from model, in a light colour
-    ctx.fillStyle = '#ddd';
+    ctx.fillStyle = '#bbb';
     for (let i = 0; i < model.length; i++) {
         draw_triangle(model[i]);
     }
@@ -157,6 +157,68 @@ function draw_flask_func(cx, cy, diameter, clearance) {
         // white circle for background
         ctx.beginPath();
         ctx.arc(cx, cy, px_per_mm*(diameter/2-clearance), 0, 2*Math.PI);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+    };
+}
+
+// return an image that describes the side view of the given model, viewed from the y direction (facing the x/z plane)
+// basically draws a pixel where there is a triangle in the model
+// you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
+function draw_side_view(model, w, h, px_per_mm, draw_bg_cb) {
+    let bbox = bounding_box(model);
+
+    let img = document.createElement('canvas');
+    img.width = w;
+    img.height = h;
+    let ctx = img.getContext('2d');
+
+    // centre the model in the canvas
+    let xoff = w/2 - (bbox.size.x/2)*px_per_mm;
+    let yoff = h/2 - (bbox.size.z/2)*px_per_mm;
+
+    // fill the canvas with white
+    ctx.beginPath();
+    ctx.rect(0, 0, img.width, img.height);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+
+    // let the user supply a background-drawing function
+    // (this is used to draw a diagram of the flask)
+    if (draw_bg_cb)
+        draw_bg_cb(ctx, px_per_mm);
+
+    let draw_triangle = function(t) {
+        ctx.beginPath();
+        ctx.moveTo(xoff + (t[0].x-bbox.min.x)*px_per_mm, yoff + (t[0].z-bbox.min.z)*px_per_mm);
+        ctx.lineTo(xoff + (t[1].x-bbox.min.x)*px_per_mm, yoff + (t[1].z-bbox.min.z)*px_per_mm);
+        ctx.lineTo(xoff + (t[2].x-bbox.min.x)*px_per_mm, yoff + (t[2].z-bbox.min.z)*px_per_mm);
+        ctx.closePath();
+        ctx.fill();
+    };
+
+    // draw all triangles from model, in a light colour
+    ctx.fillStyle = '#bbb';
+    for (let i = 0; i < model.length; i++) {
+        draw_triangle(model[i]);
+    }
+
+    return img;
+}
+
+function draw_flask_side_func(cx, cy, diameter, height, clearance) {
+    return function(ctx, px_per_mm) {
+        // red rectangle for danger zone
+        ctx.beginPath();
+        ctx.rect(cx - px_per_mm*diameter/2, cy - px_per_mm*height/2, px_per_mm*diameter, px_per_mm*height);
+        ctx.fillStyle = '#f88';
+        ctx.strokeStyle = '#000';
+        ctx.fill();
+        ctx.stroke();
+
+        // white rectangle for background
+        ctx.beginPath();
+        ctx.rect(cx - px_per_mm*(diameter/2-clearance), cy - px_per_mm*(height/2-clearance), px_per_mm*(diameter-clearance*2), px_per_mm*(height-clearance*2));
         ctx.fillStyle = '#fff';
         ctx.fill();
     };

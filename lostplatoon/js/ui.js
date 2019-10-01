@@ -9,12 +9,17 @@ $('#form').submit(function(e) {
         console.log(proc);
 
         let flaskdiameter = parseFloat($('#flaskdiameter').val());
+        let flaskheight = parseFloat($('#flaskheight').val());
         let flaskclearance = parseFloat($('#flaskclearance').val());
 
         let imsize = 400; // px
         let px_per_mm = imsize / flaskdiameter;
 
-        $('#output')[0].appendChild(draw_bottom_layer(model, 0.2, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
+        $('#output')[0].appendChild(draw_bottom_layer(model, 0.1, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
+
+        px_per_mm = imsize / flaskheight;
+
+        $('#output')[0].appendChild(draw_side_view(model, imsize, imsize, px_per_mm, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
 
         // TODO: generate initial sprue points, and let them add/remove sprue points
 
