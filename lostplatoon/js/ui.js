@@ -40,13 +40,16 @@ function redraw() {
     let flaskclearance = parseFloat($('#flaskclearance').val());
 
     let spruelegheight = parseFloat($('#spruelegheight').val());
+    let spruepuckheight = parseFloat($('#spruepuckheight').val());
+
+    let roddiameter = parseFloat($('#roddiameter').val());
 
     let px_per_mm = imsize / flaskdiameter;
 
     $('#output').empty();
     $('#output')[0].appendChild(draw_bottom_layer(workingmodel, spruelegs, 0.1, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
 
-    $('#output')[0].appendChild(draw_side_view(workingmodel, spruelegs, spruelegheight, imsize, imsize, imsize/flaskheight, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
+    $('#output')[0].appendChild(draw_side_view(workingmodel, spruelegs, spruelegheight, roddiameter, spruepuckheight, imsize, imsize, imsize/flaskheight, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
 
     $($('#output')[0].children[0]).click(function(e) {
         let offset = $(this).offset();
