@@ -89,7 +89,7 @@ function bounding_box(model) {
 // no more than "layerheight" above the bottom of the model
 // also draws all the other triangles from the model, in a lighter colour
 // you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
-function draw_bottom_layer(model, layerheight, w, h, px_per_mm, draw_bg_cb) {
+function draw_bottom_layer(model, spruelegs, layerheight, w, h, px_per_mm, draw_bg_cb) {
     let bbox = bounding_box(model);
     let zlimit = bbox.min.z + layerheight;
 
@@ -129,7 +129,7 @@ function draw_bottom_layer(model, layerheight, w, h, px_per_mm, draw_bg_cb) {
     }
 
     // now draw the bottom layer only
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = '#333';
     for (let i = 0; i < model.length; i++) {
         let t = model[i];
 
@@ -139,6 +139,15 @@ function draw_bottom_layer(model, layerheight, w, h, px_per_mm, draw_bg_cb) {
 
         // draw triangle onto canvas
         draw_triangle(t);
+    }
+
+    // draw sprue legs
+    ctx.fillStyle = '#0a0';
+    for (let i = 0; i < spruelegs.length; i++) {
+        let l = spruelegs[i];
+        ctx.beginPath();
+        ctx.arc(xoff + (l.x-bbox.min.x)*px_per_mm, yoff + (l.y-bbox.min.y)*px_per_mm, px_per_mm*l.diameter/2, 0, 2*Math.PI);
+        ctx.fill();
     }
 
     return img;
@@ -165,7 +174,7 @@ function draw_flask_func(cx, cy, diameter, clearance) {
 // return an image that describes the side view of the given model, viewed from the y direction (facing the x/z plane)
 // basically draws a pixel where there is a triangle in the model
 // you can get pixel data out with "img.getImageData(0, 0, img.width, img.height)"
-function draw_side_view(model, w, h, px_per_mm, draw_bg_cb) {
+function draw_side_view(model, spruelegs, spruelegheight, w, h, px_per_mm, draw_bg_cb) {
     let bbox = bounding_box(model);
 
     let img = document.createElement('canvas');
@@ -175,7 +184,7 @@ function draw_side_view(model, w, h, px_per_mm, draw_bg_cb) {
 
     // centre the model in the canvas
     let xoff = w/2 - (bbox.size.x/2)*px_per_mm;
-    let yoff = h/2 - (bbox.size.z/2)*px_per_mm;
+    let yoff = h/2 - ((bbox.size.z + (spruelegs.length > 0 ? -spruelegheight : 0))/2)*px_per_mm;
 
     // fill the canvas with white
     ctx.beginPath();
@@ -201,6 +210,15 @@ function draw_side_view(model, w, h, px_per_mm, draw_bg_cb) {
     ctx.fillStyle = '#bbb';
     for (let i = 0; i < model.length; i++) {
         draw_triangle(model[i]);
+    }
+
+    // draw sprue legs
+    ctx.fillStyle = '#0a0';
+    for (let i = 0; i < spruelegs.length; i++) {
+        let l = spruelegs[i];
+        ctx.beginPath();
+        ctx.rect(xoff + (l.x-l.diameter/2-bbox.min.x)*px_per_mm, yoff + (-bbox.size.z/2-bbox.min.z-spruelegheight)*px_per_mm, l.diameter*px_per_mm, spruelegheight*px_per_mm);
+        ctx.fill();
     }
 
     return img;
