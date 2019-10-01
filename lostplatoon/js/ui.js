@@ -15,6 +15,7 @@ $('#form').submit(function(e) {
         let imsize = 400; // px
         let px_per_mm = imsize / flaskdiameter;
 
+        $('#output').empty();
         $('#output')[0].appendChild(draw_bottom_layer(model, 0.1, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
 
         px_per_mm = imsize / flaskheight;
