@@ -50,8 +50,19 @@ function redraw() {
     $('#output')[0].appendChild(draw_bottom_layer(workingmodel, spruelegs, 0.1, imsize, imsize, px_per_mm, draw_flask_func(imsize/2, imsize/2, flaskdiameter, flaskclearance)));
 
     // make sure the rod contains 2x the volume of the model plus sprues
-    let rodvolume = 2 * (workingmodelproc.volume + sprue_volume(spruelegs, spruelegheight, spruepuckheight, roddiameter));
+    let spruevolume = sprue_volume(spruelegs, spruelegheight, spruepuckheight, roddiameter);
+    let rodvolume = 2 * (workingmodelproc.volume + spruevolume)
     let rodheight = rodvolume / (Math.PI * (roddiameter/2)*(roddiameter/2));
+    console.log("Rod height = " + rodheight);
+
+    // calculate rod mass
+    let rodmass = mass(rodvolume, $('#material').val());
+    console.log("Rod mass = " + rodmass + " g");
+
+    // calculate plaster volume while we're here...
+    let flaskvolume = Math.PI * (flaskdiameter/2) * (flaskdiameter/2) * flaskheight;
+    let plastervolume = flaskvolume - rodvolume - spruevolume - workingmodelproc.volume; // mm^3
+    console.log("Plaster volume required = " + plastervolume/1000 + " ml");
 
     $('#output')[0].appendChild(draw_side_view(workingmodel, spruelegs, spruelegheight, roddiameter, spruepuckheight, rodheight, imsize, imsize, imsize/flaskheight, draw_flask_side_func(imsize/2, imsize/2, flaskdiameter, flaskheight, flaskclearance)));
 
